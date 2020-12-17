@@ -1,0 +1,10 @@
+build/
+dist/
+output/
+__pycache__/
+.vscode/
+base_email.csv
+cabecalho_email.csv
+logs_1
+logs_2
+parse dos campos.txt
