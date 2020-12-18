@@ -222,36 +222,36 @@ class ParseLog():
 
 
     def busca_usuario(self, linha):
-        regex = r"/usr/bin/imapsync .* --user1 ([^\s]*)"
+        regex = r"^[^\s]*imapsync(.exe)? .* --user1 (?P<user1>[^\s]*)"
         p = re.compile(regex)
         m = p.match(linha)
         if m: 
-            self.usuario = m.group(1)
+            self.usuario = m.group("user1")
             logging.debug(f"[{self.arquivo}] Usuário: {self.usuario}")
 
 
     def busca_usuario2(self, linha):
-        regex = r"/usr/bin/imapsync .* --user2 ([^\s]*)"
+        regex = r"^[^\s]*imapsync(.exe)? .* --user2 (?P<user2>[^\s]*)"
         p = re.compile(regex)
         m = p.match(linha)
         if m: 
-            self.usuario2 = m.group(1)
+            self.usuario2 = m.group("user2")
             logging.debug(f"[{self.arquivo}] Usuário2: {self.usuario2}")
 
     def busca_host1(self, linha):
-        regex = r"/usr/bin/imapsync .* --host1 ([^\s]*)"
+        regex = r"^[^\s]*imapsync(.exe)? .* --host1 (?P<host1>[^\s]*)"
         p = re.compile(regex)
         m = p.match(linha)
         if m: 
-            self.host1 = m.group(1)
+            self.host1 = m.group("host1")
             logging.debug(f"[{self.arquivo}] Host1: {self.host1}")
 
     def busca_host2(self, linha):
-        regex = r"/usr/bin/imapsync .* --host2 ([^\s]*)"
+        regex = r"^[^\s]*imapsync(.exe)? .* --host2 (?P<host2>[^\s]*)"
         p = re.compile(regex)
         m = p.match(linha)
         if m: 
-            self.host2 = m.group(1)
+            self.host2 = m.group("host2")
             logging.debug(f"[{self.arquivo}] Host2: {self.host2}")
 
     def busca_erros(self, linha):
