@@ -17,43 +17,46 @@ class ParseLog():
     def __init__(self, arquivo, execucao=1, output_dir=f"{Path(Path.cwd(),'output')}", cabecalho=False):
 
         # Variaveis do arquivo csv
-        self.cores = None
-        self.erros = None
+        self.cores = "NAO ENCONTRADO"
+        self.erros = "NAO ENCONTRADO"
         self.execucao = execucao
-        self.fim = None
-        self.folder = None
-        self.host1 = None
-        self.host2 = None
+        self.fim = "NAO ENCONTRADO"
+        self.folder = "NAO ENCONTRADO"
+        self.host1 = "NAO ENCONTRADO"
+        self.host2 = "NAO ENCONTRADO"
         self.hostname = platform.uname()[1]
-        self.inicio = None
-        self.media_kb_segundo = None
-        self.memoria_usada_mb = None
-        self.mensagem_duplicada_destino = None
-        self.mensagem_duplicada_origem = None
-        self.mensagem_erro = "NAO ENCONTRADO"
-        self.mensagem_ignorada = None
-        self.mensagem_nula_destino = None
-        self.mensagem_nula_origem = None
-        self.mensagem_por_segundo = None
-        self.mensagem_transferida = None
-        self.tempo_total = None
-        self.total_ignorado_kb = None
-        self.total_mensagem_deletada_destino = None
-        self.total_mensagem_deletada_origem = None
-        self.total_mensagem_destino = None
-        self.total_mensagem_origem = None
-        self.total_transferido_kb = None
-        self.usuario = None
-        self.usuario2 = None
+        self.inicio = "NAO ENCONTRADO"
+        self.media_kb_segundo = "NAO ENCONTRADO"
+        self.memoria_usada_mb = "NAO ENCONTRADO"
+        self.mensagem_duplicada_destino = "NAO ENCONTRADO"
+        self.mensagem_duplicada_origem = "NAO ENCONTRADO"
+        self.mensagem_erro = "NAO MAPEADO"
+        self.mensagem_ignorada = "NAO ENCONTRADO"
+        self.mensagem_nula_destino = "NAO ENCONTRADO"
+        self.mensagem_nula_origem = "NAO ENCONTRADO"
+        self.mensagem_por_segundo = "NAO ENCONTRADO"
+        self.mensagem_transferida = "NAO ENCONTRADO"
+        self.msg_error_detail = "NAO ENCONTRADO"
+        self.msg_resolution = "NAO MAPEADO"
+        self.tempo_total = "NAO ENCONTRADO"
+        self.total_ignorado_kb = "NAO ENCONTRADO"
+        self.total_mensagem_deletada_destino = "NAO ENCONTRADO"
+        self.total_mensagem_deletada_origem = "NAO ENCONTRADO"
+        self.total_mensagem_destino = "NAO ENCONTRADO"
+        self.total_mensagem_origem = "NAO ENCONTRADO"
+        self.total_transferido_kb = "NAO ENCONTRADO"
+        self.usuario = "NAO ENCONTRADO"
+        self.usuario2 = "NAO ENCONTRADO"
 
         # Variaveis de controle do programa
         self.arquivo = Path(arquivo).absolute()
         self.linhas = self.ler_arquivo_de_log(arquivo)
         self.output_dir = output_dir
         self.cabecalho = cabecalho
+        self.linha_anterior = None
 
     def busca_data_inicio(self, linha):
-        regex = r"Transfer started on\s+: (.*)"
+        regex = r"Transfer started at (.*)"
         p = re.compile(regex)
         m = p.match(linha)
         if m: 
@@ -127,7 +130,6 @@ class ParseLog():
             self.mensagem_nula_origem = m.group(1)
             logging.debug(f"[{self.arquivo}] Mensagem nula origem: {self.mensagem_nula_origem}")
 
-
     def busca_mensagem_nula_destino(self, linha):
         regex = r"Messages void \(noheader\) on host2\s+: (.*)"
         p = re.compile(regex)
@@ -135,7 +137,6 @@ class ParseLog():
         if m: 
             self.mensagem_nula_destino = m.group(1)
             logging.debug(f"[{self.arquivo}] Mensagem nula destino: {self.mensagem_nula_destino}")
-
 
     def busca_total_mensagem_origem(self, linha):
         regex = r"Messages found in host1 not in host2\s+: (\d+) messages"
@@ -153,7 +154,6 @@ class ParseLog():
             self.total_mensagem_destino = m.group(1)
             logging.debug(f"[{self.arquivo}] Total mensagem destino: {self.total_mensagem_destino}")
 
-
     def busca_total_mensagem_deletada_origem(self, linha):
         regex = r"Messages deleted on host1\s+: (.*)"
         p = re.compile(regex)
@@ -169,7 +169,6 @@ class ParseLog():
         if m: 
             self.total_mensagem_deletada_destino = m.group(1)
             logging.debug(f"[{self.arquivo}] Total mensagem deletada destino: {self.total_mensagem_deletada_destino}")
-
 
     def busca_total_transferido(self, linha):
         regex = r"Total bytes transferred\s+: ([^\s]*)"
@@ -203,7 +202,6 @@ class ParseLog():
             self.media_kb_segundo = m.group(1)
             logging.debug(f"[{self.arquivo}] Média kb por segundo: {self.media_kb_segundo}")
 
-
     def busca_memoria_usada_media(self, linha):
         regex = r"Memory consumption at the end\s+: ([^\(]*) "
         p = re.compile(regex)
@@ -213,13 +211,12 @@ class ParseLog():
             logging.debug(f"[{self.arquivo}] Mémória usada média: {self.memoria_usada_mb}")
             
     def busca_cores(self, linha):
-        regex = r"Load end is\s+: .*(\d+) cores"
+        regex = r"^Load is .* (\d+) cores"
         p = re.compile(regex)
         m = p.match(linha)
         if m: 
             self.cores = m.group(1)
             logging.debug(f"[{self.arquivo}] Quantidade de Cores: {self.cores}")
-
 
     def busca_usuario(self, linha):
         regex = r"^[^\s]*imapsync(.exe)? .* --user1 (?P<user1>[^\s]*)"
@@ -228,7 +225,6 @@ class ParseLog():
         if m: 
             self.usuario = m.group("user1")
             logging.debug(f"[{self.arquivo}] Usuário: {self.usuario}")
-
 
     def busca_usuario2(self, linha):
         regex = r"^[^\s]*imapsync(.exe)? .* --user2 (?P<user2>[^\s]*)"
@@ -239,7 +235,7 @@ class ParseLog():
             logging.debug(f"[{self.arquivo}] Usuário2: {self.usuario2}")
 
     def busca_host1(self, linha):
-        regex = r"^[^\s]*imapsync(.exe)? .* --host1 (?P<host1>[^\s]*)"
+        regex = r"^[^\s]*imapsync(.exe)? .*--host1 (?P<host1>[^\s]*)"
         p = re.compile(regex)
         m = p.match(linha)
         if m: 
@@ -254,6 +250,35 @@ class ParseLog():
             self.host2 = m.group("host2")
             logging.debug(f"[{self.arquivo}] Host2: {self.host2}")
 
+    def busca_mensagem_de_erro(self, linha):
+        regex = r"^Exiting with return value.*\(([^:\)]*)"
+        p = re.compile(regex)
+        m = p.match(linha)
+        if m: 
+            code_name = m.group(1)
+            self.mensagem_erro = code_name
+            self.msg_error_detail = self.linha_anterior
+            self.msg_resolution = "ERRO NAO MAPEADO"
+
+            if code_name == 'EX_OK':
+                self.mensagem_erro = "NAO ENCONTRADO"
+                self.msg_error_detail = "NAO ENCONTRADO"
+                self.msg_resolution = "NAO ENCONTRADO"
+
+            if code_name == "EXIT_AUTHENTICATION_FAILURE":
+                self.msg_resolution = "Verificar usuário e senha"
+
+            if "BAD User is authenticated but not connected" in self.linha_anterior:
+                self.msg_resolution = "Verficar permissões no mailbox"
+
+            if "socket closed while reading data from server" in self.linha_anterior:
+                self.msg_resolution = "Verificar quota ou linhas muito grandes na mensagem no host2, limites Microsoft"
+            
+            if "can not open imap connection" in self.linha_anterior:
+                self.msg_resolution = "Verificar conexao IMAP com o servidor"
+
+        self.linha_anterior = linha
+
     def busca_erros(self, linha):
         regex = r"Detected (\d+) errors"
         p = re.compile(regex)
@@ -261,7 +286,7 @@ class ParseLog():
         if m: 
             self.erros = m.group(0)
             logging.debug(f"[{self.arquivo}] Erros: {self.erros}")
-    
+
     def gravar_csv(self):
         try:
             Path(self.output_dir).mkdir(parents=True, exist_ok=True)
@@ -305,7 +330,9 @@ class ParseLog():
                             "ARQUIVO",
                             "HOST1",
                             "HOST2",
-                            "USUARIO2"
+                            "USUARIO2",
+                            "MSG_ERROR_DETAIL",
+                            "MSG_RESOLUTION"
                         ]
                     )
                 file.writerow(
@@ -338,7 +365,9 @@ class ParseLog():
                         self.arquivo,
                         self.host1,
                         self.host2,
-                        self.usuario2
+                        self.usuario2,
+                        self.msg_error_detail,
+                        self.msg_resolution
                     ]
                 )
                 logging.info(f"[{self.arquivo}] Registros salvos com sucesso no arquivo {output_csv}")
@@ -380,6 +409,7 @@ class ParseLog():
             self.busca_erros(linha)
             self.busca_host1(linha)
             self.busca_host2(linha)
+            self.busca_mensagem_de_erro(linha)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
