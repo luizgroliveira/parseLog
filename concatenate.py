@@ -25,7 +25,7 @@ logging.getLogger().setLevel(logging.DEBUG)
 workspace_path = "/home/lgro/git/parseLog"
 workspace_new  = PurePath(workspace_path, "new")
 workspace_old  = PurePath(workspace_path, "old")
-workspace_log  = PurePath(workspace_path, "log")
+workspace_done = PurePath(workspace_path, "done")
 file_log_name  = "log-concatenado.csv"
 
 files = Path(workspace_new)
@@ -43,10 +43,10 @@ else:
     logging.info(f"Arquivos encontrados em {workspace_new}: {len(files)}")
     logging.debug(f"Lista dos arquivos encontrados: {', '.join(files)}")
 
-    if not Path(workspace_log).exists():
+    if not Path(workspace_done).exists():
         logging.warning("Diretório de log não exite, o mesmo sera criado")
-        Path(workspace_log).mkdir()
-        logging.warning(f"Criado o diretório de log: {workspace_log}")
+        Path(workspace_done).mkdir()
+        logging.warning(f"Criado o diretório de log: {workspace_done}")
 
     if not Path(workspace_old).exists():
         logging.warning("Diretório de arquivos processados não exite, o mesmo sera criado")
@@ -54,7 +54,7 @@ else:
         logging.warning(f"Criado o diretório de log: {workspace_old}")
 
     try:
-        file_log = PurePath(workspace_log, file_log_name)
+        file_log = PurePath(workspace_done, file_log_name)
         logging.info(f"Gerando o arquivo concatenado: {file_log}")
         with open(file_log, "w") as outfile:
             for indice, arquivo in enumerate(files, start=1):
