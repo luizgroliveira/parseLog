@@ -50,8 +50,8 @@ echo "$comando"
 #done
 
 owner_pt2=$(sed -n '/^Pode enviar: /,/^Destinatarios: / { s/^Pode enviar: //; /^Destinatarios: /d; p}' "$file")
-owner_dominio_pt2=$(if [ -n "$owner_pt2" ]; then echo "$owner_pt2" | sed "s/@[^\"]*//; s/$/@$dominio/"; fi)
-owner_dominio_pt2=$(echo $owner_dominio_pt2 | sed 's/^/"/; s/ /","/g; s/$/"/')
+owner_dominio_pt2=$(if [ -n "$owner_pt2" ]; then echo "$owner_pt2" | sed "s/@[^\"]*//; s/$/@$dominio/" | sort -u; fi)
+owner_dominio_pt2=$(echo $owner_dominio_pt2 | sed 's/^/"/; s/ /","/g; s/$/"/' )
 
 
 
