@@ -34,25 +34,26 @@ then
   comando="$comando -Owner $owner_dominio"
 fi
 
-if [ "$members_dominio" != '""' ]
-then
-  comando="$comando -Members $members_dominio"
-fi
+#if [ "$members_dominio" != '""' ]
+#then
+#  comando="$comando -Members $members_dominio"
+#fi
 
 comando="$comando -AccessType Private"
 
 echo "$comando"
 
 ### Parte 2
-#for membro in $(echo "$members_dominio" | sed 's/,/ /g')
-#do
-#    echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $membro -RejectMessagesFromSendersOrMembers \$null"
-#done
+for membro in $(echo "$members_dominio" | sed 's/,/ /g')
+do
+    #echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $membro -RejectMessagesFromSendersOrMembers \$null"
+    echo "Add-UnifiedGroupLinks –Identity \"$primary_smtp_address_dominio\" –LinkType "Members" –Links $membro"
+done
 
-owner_pt2=$(sed -n '/^Pode enviar: /,/^Destinatarios: / { s/^Pode enviar: //; /^Destinatarios: /d; p}' "$file")
-owner_dominio_pt2=$(if [ -n "$owner_pt2" ]; then echo "$owner_pt2" | sed "s/@[^\"]*//; s/$/@$dominio/" | sort -u; fi)
-owner_dominio_pt2=$(echo $owner_dominio_pt2 | sed 's/^/"/; s/ /","/g; s/$/"/' )
-
-
-
-echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $owner_dominio_pt2 -RejectMessagesFromSendersOrMembers \$null"
+#owner_pt2=$(sed -n '/^Pode enviar: /,/^Destinatarios: / { s/^Pode enviar: //; /^Destinatarios: /d; p}' "$file")
+#owner_dominio_pt2=$(if [ -n "$owner_pt2" ]; then echo "$owner_pt2" | sed "s/@[^\"]*//; s/$/@$dominio/" | sort -u; fi)
+#owner_dominio_pt2=$(echo $owner_dominio_pt2 | sed 's/^/"/; s/ /","/g; s/$/"/' )
+#
+#
+#
+#echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $owner_dominio_pt2 -RejectMessagesFromSendersOrMembers \$null"
