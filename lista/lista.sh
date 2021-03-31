@@ -12,8 +12,16 @@ display_name=$(echo "$file_name" | sed 's/.txt$//')
 primary_smtp_address=$(head -n 1 "$file")
 primary_smtp_address_dominio=$(echo "$primary_smtp_address" | sed "s/@[^\"]*/@$dominio/")
 
-owner=$(sed -n '/^Pode enviar: / { s/^Pode enviar: //; p}' "$file")
-owner_dominio=$(if [ -n "$owner" ]; then echo "$owner" | sed "s/@[^\"]*//; s/$/@$dominio/"; fi)
+###
+#owner=$(sed -n '/^Pode enviar: /,/^Destinatarios: / { s/^Pode enviar: //; /^Destinatarios: /d; p}' "$file")
+#owner_dominio=$(if [ -n "$owner" ]; then echo "$owner" | sed "s/@[^\"]*//; s/$/@$dominio/"; fi)
+
+####
+owner_list=$(sed -n '/^Pode enviar: /,/^Destinatarios: / { s/^Pode enviar: //; /^Destinatarios: /d; p}' "$file")
+#owner=$(echo $owner_list | sed 's/^/"/; s/ /","/g; s/$/"/')
+owner=$(echo $owner_list)
+owner_dominio=$(echo "$owner" | sed "s/@[^ ]*/@$dominio/g")
+#owner_dominio=$(echo "$owner" | sed "s/@inss\.gov\.br/@$dominio/g")
 
 #members_list=$(sed -n '/^Destinatarios: /,$ { s/^Destinatarios: //; p }' "$file")
 members_list=$(sed -n '/^Destinatarios: /,/mailForwardingAddress/ { s/^Destinatarios: //; /mailForwardingAddress/d;  p }' "$file")
@@ -31,7 +39,14 @@ comando="New-UnifiedGroup -DisplayName $display_name -PrimarySmtpAddress $primar
 
 if [ -n "$owner_dominio" ]
 then
-  comando="$comando -Owner $owner_dominio"
+  #comando="$comando -Owner $owner_dominio"
+  for owner in $(echo "$owner_dominio")
+  do
+    echo "$comando -Owner $owner -AccessType Private"
+  done
+  echo "$comando -Owner guiarapido@inss.gov.br -AccessType Private"
+else
+  echo "$comando -AccessType Private"
 fi
 
 #if [ "$members_dominio" != '""' ]
@@ -39,9 +54,9 @@ fi
 #  comando="$comando -Members $members_dominio"
 #fi
 
-comando="$comando -AccessType Private"
+#comando="$comando -AccessType Private"
 
-echo "$comando"
+#echo "$comando"
 
 ### Parte 2
 for membro in $(echo "$members_dominio" | sed 's/,/ /g')
@@ -50,10 +65,8 @@ do
     echo "Add-UnifiedGroupLinks –Identity \"$primary_smtp_address_dominio\" –LinkType "Members" –Links $membro"
 done
 
-#owner_pt2=$(sed -n '/^Pode enviar: /,/^Destinatarios: / { s/^Pode enviar: //; /^Destinatarios: /d; p}' "$file")
-#owner_dominio_pt2=$(if [ -n "$owner_pt2" ]; then echo "$owner_pt2" | sed "s/@[^\"]*//; s/$/@$dominio/" | sort -u; fi)
-#owner_dominio_pt2=$(echo $owner_dominio_pt2 | sed 's/^/"/; s/ /","/g; s/$/"/' )
-#
-#
-#
-#echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $owner_dominio_pt2 -RejectMessagesFromSendersOrMembers \$null"
+owner_pt2=$(sed -n '/^Pode enviar: /,/^Destinatarios: / { s/^Pode enviar: //; /^Destinatarios: /d; p}' "$file")
+owner_dominio_pt2=$(if [ -n "$owner_pt2" ]; then echo "$owner_pt2" | sed "s/@[^\"]*//; s/$/@$dominio/" | sort -u; fi)
+owner_dominio_pt2=$(echo $owner_dominio_pt2 | sed 's/^/"/; s/ /","/g; s/$/"/' )
+
+echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $owner_dominio_pt2 -RejectMessagesFromSendersOrMembers \$null"
