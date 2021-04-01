@@ -35,18 +35,21 @@ members_dominio=$(echo "$members" | sed "s/@inss\.gov\.br/@$dominio/g")
 # Alterando o dominio
 #echo "New-UnifiedGroup -DisplayName $display_name -PrimarySmtpAddress $primary_smtp_address -Owner $owner_dominio -Members $members_dominio -AccessType Private"
 
-comando="New-UnifiedGroup -DisplayName $display_name -PrimarySmtpAddress $primary_smtp_address" 
+#comando="New-UnifiedGroup -DisplayName $display_name -PrimarySmtpAddress $primary_smtp_address" 
 
 if [ -n "$owner_dominio" ]
 then
   #comando="$comando -Owner $owner_dominio"
   for owner in $(echo "$owner_dominio")
   do
-    echo "$comando -Owner $owner -AccessType Private"
+    echo "New-UnifiedGroup -DisplayName $display_name -PrimarySmtpAddress $primary_smtp_address -Owner $owner -AccessType Private"
+    echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $owner -RejectMessagesFromSendersOrMembers \$null"
   done
-  echo "$comando -Owner guiarapido@inss.gov.br -AccessType Private"
+  echo "New-UnifiedGroup -DisplayName $display_name -PrimarySmtpAddress $primary_smtp_address -Owner guiarapido@inss.gov.br -AccessType Private"
+  echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers  guiarapido@inss.gov.br -RejectMessagesFromSendersOrMembers \$null"
 else
-  echo "$comando -AccessType Private"
+  echo "New-UnifiedGroup -DisplayName $display_name -PrimarySmtpAddress $primary_smtp_address -AccessType Private"
+  echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -RejectMessagesFromSendersOrMembers \$null"
 fi
 
 #if [ "$members_dominio" != '""' ]
@@ -69,4 +72,16 @@ owner_pt2=$(sed -n '/^Pode enviar: /,/^Destinatarios: / { s/^Pode enviar: //; /^
 owner_dominio_pt2=$(if [ -n "$owner_pt2" ]; then echo "$owner_pt2" | sed "s/@[^\"]*//; s/$/@$dominio/" | sort -u; fi)
 owner_dominio_pt2=$(echo $owner_dominio_pt2 | sed 's/^/"/; s/ /","/g; s/$/"/' )
 
-echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $owner_dominio_pt2 -RejectMessagesFromSendersOrMembers \$null"
+#echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $owner_dominio_pt2 -RejectMessagesFromSendersOrMembers \$null"
+
+##'if [ -n "$owner_dominio" ]
+##'then
+##'  #comando="$comando -Owner $owner_dominio"
+##'  for owner in $(echo "$owner_dominio")
+##'  do
+##'    echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers $owner_dominio -RejectMessagesFromSendersOrMembers \$null"
+##'  done
+##'    echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -AcceptMessagesOnlyFromSendersOrMembers guiarapido@inss.gov.br -RejectMessagesFromSendersOrMembers \$null"
+##'else
+##'  echo "Set-UnifiedGroup -Identity $primary_smtp_address_dominio -Language 'pt-BR' -RejectMessagesFromSendersOrMembers \$null"
+##'fi
